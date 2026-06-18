@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FK POS - 收銀與管理系統</title>
+    <title>FK - 後台商品庫管理系統</title>
     <style>
         :root {
             --fk-bg: #F4F6F9;
@@ -64,6 +64,42 @@
             font-size: 14px;
         }
 
+        .btn {
+            padding: 14px;
+            border: 1px solid var(--fk-border);
+            border-radius: 6px;
+            background: var(--fk-white);
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--fk-active);
+        }
+
+        .btn-primary {
+            background: var(--fk-blue);
+            color: var(--fk-white);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #051424;
+        }
+
+        .btn-danger {
+            background: var(--fk-red);
+            color: var(--fk-white);
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: #A93226;
+        }
+
         /* 上方主導航區 */
         .system-top-nav {
             background: var(--fk-white);
@@ -100,279 +136,135 @@
             display: flex;
             flex: 1;
             overflow: hidden;
+            flex-direction: column;
         }
 
-        /* 左側：商品前台與搜尋 */
+        /* 商品前台與搜尋 */
         .products-section {
             flex: 1;
-            padding: 24px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
         .search-bar-container {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             display: flex;
             gap: 12px;
         }
 
         .search-input {
             flex: 1;
-            padding: 12px;
+            max-width: 600px;
+            padding: 14px;
             border: 1px solid var(--fk-border);
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 8px;
+            font-size: 15px;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
             overflow-y: auto;
             flex: 1;
+            padding-right: 10px;
         }
 
         .product-card {
             background: var(--fk-white);
             border: 1px solid var(--fk-border);
-            padding: 16px;
-            border-radius: 8px;
-            cursor: pointer;
+            padding: 20px;
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 135px;
+            height: 150px;
             position: relative;
-            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .product-card:hover {
-            background: var(--fk-active);
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
 
         .product-code-tag {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--fk-muted);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .product-name {
-            font-size: 14px;
+            font-size: 16px;
             line-height: 1.4;
-            font-weight: 500;
+            font-weight: bold;
         }
 
         .product-prices {
-            margin-top: 8px;
+            margin-top: 12px;
         }
 
         .price-normal {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--fk-text);
         }
 
         .price-member {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--fk-green);
             font-weight: bold;
+            margin-top: 4px;
         }
 
         .delete-card-btn {
             position: absolute;
-            top: 8px; right: 8px;
+            top: 12px; right: 12px;
             background: var(--fk-red);
             color: white;
             border: none;
-            border-radius: 4px;
-            padding: 2px 6px;
-            font-size: 11px;
-            cursor: pointer;
-            display: none; 
-        }
-
-        /* 右側：購物車 */
-        .cart-section {
-            width: 380px;
-            background: var(--fk-white);
-            border-left: 1px solid var(--fk-border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .cart-header {
-            padding: 24px;
-            font-size: 16px;
-            border-bottom: 1px solid var(--fk-border);
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .cart-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 24px;
-        }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--fk-border);
-            font-size: 14px;
-        }
-
-        .item-info {
-            flex: 1;
-            padding-right: 12px;
-        }
-
-        .item-qty-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 4px;
-        }
-
-        .qty-btn {
-            background: none;
-            border: 1px solid var(--fk-border);
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .qty-btn:hover {
-            background: var(--fk-bg);
-        }
-
-        .cart-summary {
-            padding: 24px;
-            background: var(--fk-bg);
-            border-top: 1px solid var(--fk-border);
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
-
-        .summary-row.total {
-            font-size: 20px;
-            font-weight: 500;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--fk-border);
-            color: var(--fk-blue);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 14px;
-            border: 1px solid var(--fk-border);
             border-radius: 6px;
-            background: var(--fk-white);
+            padding: 4px 10px;
+            font-size: 12px;
             cursor: pointer;
-            font-size: 14px;
-            text-align: center;
-            font-weight: bold;
+            display: block; 
+            transition: background 0.2s;
         }
 
-        .btn:hover {
-            background: var(--fk-active);
-        }
-
-        .btn-primary {
-            background: var(--fk-blue);
-            color: var(--fk-white);
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background: #051424;
-        }
-
-        .btn-danger {
-            background: var(--fk-red);
-            color: var(--fk-white);
-            border: none;
+        .delete-card-btn:hover {
+            background: #A93226;
         }
 
         /* 管理員底部商品上架面板 */
         .admin-panel {
             background: #EAECEF;
-            padding: 20px 24px;
+            padding: 24px 30px;
             border-top: 2px solid var(--fk-blue);
             display: none; 
         }
 
         .admin-panel-title {
             font-weight: bold;
-            margin-bottom: 12px;
-            font-size: 15px;
+            margin-bottom: 16px;
+            font-size: 16px;
             color: var(--fk-blue);
         }
 
         .admin-form {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 16px;
             align-items: center;
         }
 
         .admin-form input {
-            padding: 10px;
+            padding: 12px;
             border: 1px solid var(--fk-border);
-            border-radius: 4px;
-            font-size: 13px;
+            border-radius: 6px;
+            font-size: 14px;
             background: var(--fk-white);
-        }
-
-        /* 核心自訂彈窗 */
-        .custom-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 37, 64, 0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        }
-
-        .modal-content {
-            background: var(--fk-white);
-            padding: 32px;
-            border-radius: 16px;
-            width: 340px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .modal-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--fk-green);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin: 0 auto 16px;
         }
     </style>
 </head>
@@ -381,27 +273,18 @@
     <div class="login-overlay" id="login-screen">
         <div class="login-box">
             <div class="brand-logo-box" style="width:75px; height:75px; font-size:32px; border-radius:22px; margin: 0 auto 20px; display:flex;">FK</div>
-            <h3 style="margin-bottom: 20px;">系統登入</h3>
-            <div id="login-error" style="color:var(--fk-red); font-size:13px; margin-bottom:10px; display:none;">帳號或密碼錯誤</div>
-            <input type="text" id="username" placeholder="請輸入帳號">
+            <h3 style="margin-bottom: 20px;">後台管理系統登入</h3>
+            <div id="login-error" style="color:var(--fk-red); font-size:13px; margin-bottom:10px; display:none;">此系統僅限管理員登入</div>
+            <input type="text" id="username" placeholder="請輸入管理員帳號">
             <input type="password" id="password" placeholder="請輸入密碼">
             <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="handleLogin()">進入系統</button>
-        </div>
-    </div>
-
-    <div class="custom-modal" id="success-modal">
-        <div class="modal-content">
-            <div class="modal-icon">✓</div>
-            <h3 style="margin-bottom: 10px; color: var(--fk-blue);">結帳成功</h3>
-            <p style="color: var(--fk-muted); font-size: 14px; margin-bottom: 24px;" id="modal-msg">交易已處理完成</p>
-            <button class="btn btn-primary" style="width: 100%;" onclick="closeModal()">確認</button>
         </div>
     </div>
 
     <div class="system-top-nav">
         <div class="header-title">
             <div class="brand-logo-box">FK</div>
-            <span>收銀與管理系統</span>
+            <span>商品庫管理系統</span>
         </div>
         <div style="display:flex; gap:15px; align-items:center;">
             <span id="user-badge" style="font-size:13px; font-weight:bold; background:#E5EBF2; padding:6px 12px; border-radius:4px;"></span>
@@ -413,43 +296,20 @@
     <div class="main-workspace">
         <div class="products-section">
             <div class="search-bar-container">
-                <input type="text" class="search-input" id="search-code-input" placeholder="輸入商品編號進行搜尋..." oninput="filterProducts()">
+                <input type="text" class="search-input" id="search-code-input" placeholder="輸入商品編號或名稱進行搜尋..." oninput="filterProducts()">
             </div>
             <div class="grid" id="product-grid"></div>
         </div>
 
-        <div class="cart-section">
-            <div class="cart-header" id="cart-title-text">購買清單 (Cart)</div>
-            <div class="cart-list" id="cart-list"></div>
-            <div class="cart-summary">
-                <div class="summary-row">
-                    <span>小計</span>
-                    <span id="subtotal">HKD 0</span>
-                </div>
-                <div class="summary-row">
-                    <span>件數</span>
-                    <span id="total-items">0 件</span>
-                </div>
-                <div class="summary-row total">
-                    <span>合計 (含稅)</span>
-                    <span id="grand-total">HKD 0</span>
-                </div>
-                <div class="btn-group">
-                    <button class="btn" id="clear-btn" onclick="clearCart()">清除</button>
-                    <button class="btn btn-primary" id="checkout-btn" onclick="checkout()">結帳</button>
-                </div>
+        <div class="admin-panel" id="admin-control-panel">
+            <div class="admin-panel-title">新增商品至資料庫</div>
+            <div class="admin-form">
+                <input type="text" id="new-code" placeholder="商品編號 (例如: A01)" style="width:180px;">
+                <input type="text" id="new-name" placeholder="商品名稱" style="width:260px;">
+                <input type="number" id="new-price" placeholder="價格 HKD" style="width:140px;">
+                <input type="number" id="new-member-price" placeholder="會員價 (選填)" style="width:140px;">
+                <button class="btn btn-primary" style="padding:12px 24px; flex:none;" onclick="addNewProduct()">確認添加</button>
             </div>
-        </div>
-    </div>
-
-    <div class="admin-panel" id="admin-control-panel">
-        <div class="admin-panel-title">管理員主後台 - 商品上架管理</div>
-        <div class="admin-form">
-            <input type="text" id="new-code" placeholder="商品編號 (例如: A01)" style="width:150px;">
-            <input type="text" id="new-name" placeholder="商品姓名" style="width:220px;">
-            <input type="number" id="new-price" placeholder="價格 HKD" style="width:120px;">
-            <input type="number" id="new-member-price" placeholder="會員價 (選填)" style="width:120px;">
-            <button class="btn btn-primary" style="padding:10px 20px; flex:none;" onclick="addNewProduct()">添加商品</button>
         </div>
     </div>
 
@@ -470,102 +330,65 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        let currentRole = 'staff'; 
         let products = [];
-        let cart = [];
 
-        // 監聽 Firebase 雲端商品庫 (跨裝置即時同步所有商品新增與刪除)
+        // 監聽 Firebase 雲端商品庫 (跨裝置即時同步所有商品)
         const productsRef = ref(database, 'products');
         onValue(productsRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 products = Object.keys(data).map(key => ({ id: key, ...data[key] }));
             } else {
-                // 如果雲端空無一物，寫入預設商品
-                const defaultProducts = [
-                    { id: "A01", name: "舒適短袖 T 恤", price: 350, memberPrice: 310 },
-                    { id: "A02", name: "保濕化妝水", price: 290, memberPrice: 260 },
-                    { id: "A03", name: "多功能收納盒", price: 110, memberPrice: null },
-                    { id: "A04", name: "超音波水氧機", price: 1690, memberPrice: 1500 }
-                ];
-                defaultProducts.forEach(p => {
-                    set(ref(database, 'products/' + p.id), { name: p.name, price: p.price, memberPrice: p.memberPrice });
-                });
+                products = [];
             }
             window.renderProducts(document.getElementById('search-code-input').value);
         });
 
-        // 登入驗證
+        // 登入驗證：完全獨立的管理後台，僅限 admin01 登入
         window.handleLogin = function() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
             const errorHint = document.getElementById('login-error');
 
             if (u === 'admin01' && p === 'admin01') {
-                currentRole = 'admin';
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('logout-btn').style.display = 'block';
-                document.getElementById('user-badge').innerText = "當前權限: 高級管理員";
+                document.getElementById('user-badge').innerText = "系統狀態: 高級管理員";
                 document.getElementById('admin-control-panel').style.display = 'block'; 
-                
-                // 執行新規則：管理員系統不可以收款
-                document.getElementById('cart-title-text').innerText = "管理員瀏覽模式（禁止收款）";
-                document.getElementById('checkout-btn').disabled = true;
-                document.getElementById('checkout-btn').style.background = "#BDC3C7";
-                document.getElementById('checkout-btn').style.cursor = "not-allowed";
-                document.getElementById('clear-btn').disabled = true;
-
-                window.clearCart();
-                window.renderProducts();
-            } else if (u === 'P001' && p === 'P001') {
-                currentRole = 'staff';
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('logout-btn').style.display = 'block';
-                document.getElementById('user-badge').innerText = "當前權限: 收銀員工";
-                document.getElementById('admin-control-panel').style.display = 'none';
-                
-                // 員工允許收款
-                document.getElementById('cart-title-text').innerText = "購買清單 (Cart)";
-                document.getElementById('checkout-btn').disabled = false;
-                document.getElementById('checkout-btn').style.background = "var(--fk-blue)";
-                document.getElementById('checkout-btn').style.cursor = "pointer";
-                document.getElementById('clear-btn').disabled = false;
-
-                window.clearCart();
                 window.renderProducts();
             } else {
                 errorHint.style.display = 'block';
             }
         };
 
-        // 安全登出並清除收銀台的即時購物車畫面
+        // 安全登出
         window.handleLogout = function() {
-            currentRole = 'staff';
-            cart = [];
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('logout-btn').style.display = 'none';
-            remove(ref(database, 'fk_pos_cart'));
+            document.getElementById('admin-control-panel').style.display = 'none';
         };
 
-        // 渲染商品列表
-        window.renderProducts = function(filterCode = "") {
+        // 渲染商品庫列表
+        window.renderProducts = function(filterText = "") {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
             
             products.forEach(p => {
-                if (filterCode && !p.id.toLowerCase().includes(filterCode.toLowerCase())) return;
+                // 支援雙向搜尋 (編號或名稱)
+                if (filterText && !p.id.toLowerCase().includes(filterText.toLowerCase()) && !p.name.toLowerCase().includes(filterText.toLowerCase())) {
+                    return;
+                }
 
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                card.setAttribute('onclick', `addToCart('${p.id}')`);
                 
                 let memberPriceHTML = p.memberPrice ? `<div class="price-member">會員: HKD ${p.memberPrice}</div>` : '';
-                let deleteBtnHTML = currentRole === 'admin' ? `<button class="delete-card-btn" style="display:block;" onclick="deleteProduct(event, '${p.id}')">刪除</button>` : '';
 
+                // 已移除點擊加入購物車事件，純展示與刪除用途
                 card.innerHTML = `
-                    ${deleteBtnHTML}
+                    <button class="delete-card-btn" onclick="deleteProduct('${p.id}')">刪除</button>
                     <div>
                         <div class="product-code-tag">編號: ${p.id}</div>
                         <div class="product-name">${p.name}</div>
@@ -584,7 +407,7 @@
             window.renderProducts(val);
         };
 
-        // 管理員上架：直接寫入 Firebase 實時資料庫
+        // 管理員上架：寫入 Firebase 實時資料庫
         window.addNewProduct = function() {
             const code = document.getElementById('new-code').value.trim();
             const name = document.getElementById('new-name').value.trim();
@@ -593,12 +416,12 @@
             const memberPrice = mPriceVal !== "" ? parseFloat(mPriceVal) : null;
 
             if (!code || !name || isNaN(price)) {
-                alert("請完整填寫商品編號、姓名與價格");
+                alert("請完整填寫商品編號、名稱與價格");
                 return;
             }
 
             if (products.some(p => p.id.toLowerCase() === code.toLowerCase())) {
-                alert("此商品編號已存在");
+                alert("此商品編號已存在資料庫中");
                 return;
             }
 
@@ -608,105 +431,18 @@
                 memberPrice: memberPrice
             });
 
+            // 清空輸入框
             document.getElementById('new-code').value = '';
             document.getElementById('new-name').value = '';
             document.getElementById('new-price').value = '';
             document.getElementById('new-member-price').value = '';
         };
 
-        // 管理員刪除：直接從 Firebase 刪除
-        window.deleteProduct = function(event, id) {
-            event.stopPropagation(); 
-            remove(ref(database, 'products/' + id));
-        };
-
-        window.addToCart = function(id) {
-            if (currentRole === 'admin') return;
-
+        // 管理員刪除：從 Firebase 刪除資料
+        window.deleteProduct = function(id) {
             const product = products.find(p => p.id === id);
-            if (!product) return;
-
-            const exist = cart.find(item => item.id === id);
-            if (exist) {
-                exist.qty++;
-            } else {
-                cart.push({ ...product, qty: 1 });
-            }
-            window.updateUI();
-        };
-
-        window.changeQty = function(id, delta) {
-            if (currentRole === 'admin') return;
-            const item = cart.find(i => i.id === id);
-            if (!item) return;
-            item.qty += delta;
-            if (item.qty <= 0) {
-                cart = cart.filter(i => i.id !== id);
-            }
-            window.updateUI();
-        };
-
-        window.clearCart = function() {
-            cart = [];
-            window.updateUI();
-        };
-
-        // 結帳：即時傳送結帳成功訊號給客戶端
-        window.checkout = function() {
-            if (currentRole === 'admin') return; 
-            if (cart.length === 0) return;
-
-            const totalAmount = document.getElementById('grand-total').innerText;
-            document.getElementById('modal-msg').innerText = `本次消費金額為 ${totalAmount}`;
-            
-            set(ref(database, 'fk_pos_cart'), { status: 'checkout_success' });
-
-            document.getElementById('success-modal').style.display = 'flex';
-        };
-
-        window.closeModal = function() {
-            document.getElementById('success-modal').style.display = 'none';
-            window.clearCart();
-        };
-
-        // 介面更新並即時推送至雲端
-        window.updateUI = function() {
-            const list = document.getElementById('cart-list');
-            list.innerHTML = '';
-            
-            let total = 0;
-            let itemsCount = 0;
-            cart.forEach(item => {
-                total += item.price * item.qty;
-                itemsCount += item.qty;
-
-                const row = document.createElement('div');
-                row.className = 'cart-item';
-                row.innerHTML = `
-                    <div class="item-info">
-                        <div>${item.name} <span style="font-size:11px; color:var(--fk-muted);">(${item.id})</span></div>
-                        <div class="item-qty-controls">
-                            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-                            <span>${item.qty}</span>
-                            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-                        </div>
-                    </div>
-                    <div>HKD ${item.price * item.qty}</div>
-                `;
-                list.appendChild(row);
-            });
-
-            document.getElementById('subtotal').innerText = `HKD ${total}`;
-            document.getElementById('total-items').innerText = `${itemsCount} 件`;
-            document.getElementById('grand-total').innerText = `HKD ${total}`;
-
-            if (currentRole !== 'admin') {
-                set(ref(database, 'fk_pos_cart'), {
-                    status: 'editing',
-                    items: cart,
-                    total: total,
-                    count: itemsCount
-                });
+            if(confirm(`確定要從資料庫中永久刪除「${product.name}」嗎？`)) {
+                remove(ref(database, 'products/' + id));
             }
         };
 
