@@ -453,42 +453,53 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBYiiWD8-Y8Fw7jYEgeWnJN3adw82NT7A",
+            authDomain: "fu-store-89d6f.firebaseapp.com",
+            databaseURL: "https://fu-store-89d6f-default-rtdb.firebaseio.com",
+            projectId: "fu-store-89d6f",
+            storageBucket: "fu-store-89d6f.firebasestorage.app",
+            messagingSenderId: "284619846236",
+            appId: "1:284619846236:web:92232d40e213484700ac99"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
         let currentRole = 'staff'; 
-
-        // 初始化預設基礎商品 (若本地沒有儲存過才載入)
-        const defaultProducts = [
-            { id: "A01", name: "舒適短袖 T 恤", price: 350, memberPrice: 310 },
-            { id: "A02", name: "保濕化妝水", price: 290, memberPrice: 260 },
-            { id: "A03", name: "多功能收納盒", price: 110, memberPrice: null },
-            { id: "A04", name: "超音波水氧機", price: 1690, memberPrice: 1500 }
-        ];
-
         let products = [];
         let cart = [];
 
-        // 載入商品（解決登出無法自動保存的核心關鍵：從 localStorage 持久化讀取）
-        function loadProductsFromStorage() {
-            const stored = localStorage.getItem('fk_stored_products');
-            if (stored) {
-                products = JSON.parse(stored);
+        // 監聽 Firebase 雲端商品庫 (跨裝置即時同步所有商品新增與刪除)
+        const productsRef = ref(database, 'products');
+        onValue(productsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                products = Object.keys(data).map(key => ({ id: key, ...data[key] }));
             } else {
-                products = [...defaultProducts];
-                saveProductsToStorage();
+                // 如果雲端空無一物，寫入預設商品
+                const defaultProducts = [
+                    { id: "A01", name: "舒適短袖 T 恤", price: 350, memberPrice: 310 },
+                    { id: "A02", name: "保濕化妝水", price: 290, memberPrice: 260 },
+                    { id: "A03", name: "多功能收納盒", price: 110, memberPrice: null },
+                    { id: "A04", name: "超音波水氧機", price: 1690, memberPrice: 1500 }
+                ];
+                defaultProducts.forEach(p => {
+                    set(ref(database, 'products/' + p.id), { name: p.name, price: p.price, memberPrice: p.memberPrice });
+                });
             }
-        }
-
-        function saveProductsToStorage() {
-            localStorage.setItem('fk_stored_products', JSON.stringify(products));
-        }
+            window.renderProducts(document.getElementById('search-code-input').value);
+        });
 
         // 登入驗證
-        function handleLogin() {
+        window.handleLogin = function() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
             const errorHint = document.getElementById('login-error');
-
-            loadProductsFromStorage(); // 確保每次登入都加載最新狀態
 
             if (u === 'admin01' && p === 'admin01') {
                 currentRole = 'admin';
@@ -504,8 +515,8 @@
                 document.getElementById('checkout-btn').style.cursor = "not-allowed";
                 document.getElementById('clear-btn').disabled = true;
 
-                clearCart();
-                renderProducts();
+                window.clearCart();
+                window.renderProducts();
             } else if (u === 'P001' && p === 'P001') {
                 currentRole = 'staff';
                 document.getElementById('login-screen').style.display = 'none';
@@ -520,34 +531,31 @@
                 document.getElementById('checkout-btn').style.cursor = "pointer";
                 document.getElementById('clear-btn').disabled = false;
 
-                clearCart();
-                renderProducts();
+                window.clearCart();
+                window.renderProducts();
             } else {
                 errorHint.style.display = 'block';
             }
-        }
+        };
 
-        // 安全登出
-        function handleLogout() {
-            // 登出時不清除 fk_stored_products 以確保自動保存！
+        // 安全登出並清除收銀台的即時購物車畫面
+        window.handleLogout = function() {
             currentRole = 'staff';
             cart = [];
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('logout-btn').style.display = 'none';
-            localStorage.removeItem('fk_pos_cart'); // 重置客戶端
-        }
+            remove(ref(database, 'fk_pos_cart'));
+        };
 
         // 渲染商品列表
-        function renderProducts(filterCode = "") {
+        window.renderProducts = function(filterCode = "") {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
             
             products.forEach(p => {
-                if (filterCode && !p.id.toLowerCase().includes(filterCode.toLowerCase())) {
-                    return;
-                }
+                if (filterCode && !p.id.toLowerCase().includes(filterCode.toLowerCase())) return;
 
                 const card = document.createElement('div');
                 card.className = 'product-card';
@@ -569,15 +577,15 @@
                 `;
                 grid.appendChild(card);
             });
-        }
+        };
 
-        function filterProducts() {
+        window.filterProducts = function() {
             const val = document.getElementById('search-code-input').value;
-            renderProducts(val);
-        }
+            window.renderProducts(val);
+        };
 
-        // 管理員上架並儲存
-        function addNewProduct() {
+        // 管理員上架：直接寫入 Firebase 實時資料庫
+        window.addNewProduct = function() {
             const code = document.getElementById('new-code').value.trim();
             const name = document.getElementById('new-name').value.trim();
             const price = parseFloat(document.getElementById('new-price').value);
@@ -594,28 +602,25 @@
                 return;
             }
 
-            products.push({ id: code, name: name, price: price, memberPrice: memberPrice });
-            saveProductsToStorage(); // 自動即時儲存保存商品
-            renderProducts();
+            set(ref(database, 'products/' + code), {
+                name: name,
+                price: price,
+                memberPrice: memberPrice
+            });
 
             document.getElementById('new-code').value = '';
             document.getElementById('new-name').value = '';
             document.getElementById('new-price').value = '';
             document.getElementById('new-member-price').value = '';
-        }
+        };
 
-        // 管理員刪除商品並儲存
-        function deleteProduct(event, id) {
+        // 管理員刪除：直接從 Firebase 刪除
+        window.deleteProduct = function(event, id) {
             event.stopPropagation(); 
-            products = products.filter(p => p.id !== id);
-            cart = cart.filter(item => item.id !== id); 
-            saveProductsToStorage(); // 自動即時儲存保存商品
-            renderProducts();
-            updateUI();
-        }
+            remove(ref(database, 'products/' + id));
+        };
 
-        function addToCart(id) {
-            // 管理員模式禁止點擊添加進購物車進行任何模擬交易
+        window.addToCart = function(id) {
             if (currentRole === 'admin') return;
 
             const product = products.find(p => p.id === id);
@@ -627,10 +632,10 @@
             } else {
                 cart.push({ ...product, qty: 1 });
             }
-            updateUI();
-        }
+            window.updateUI();
+        };
 
-        function changeQty(id, delta) {
+        window.changeQty = function(id, delta) {
             if (currentRole === 'admin') return;
             const item = cart.find(i => i.id === id);
             if (!item) return;
@@ -638,34 +643,34 @@
             if (item.qty <= 0) {
                 cart = cart.filter(i => i.id !== id);
             }
-            updateUI();
-        }
+            window.updateUI();
+        };
 
-        function clearCart() {
+        window.clearCart = function() {
             cart = [];
-            updateUI();
-        }
+            window.updateUI();
+        };
 
-        function checkout() {
-            if (currentRole === 'admin') return; // 管理員不執行收款
+        // 結帳：即時傳送結帳成功訊號給客戶端
+        window.checkout = function() {
+            if (currentRole === 'admin') return; 
             if (cart.length === 0) return;
 
             const totalAmount = document.getElementById('grand-total').innerText;
             document.getElementById('modal-msg').innerText = `本次消費金額為 ${totalAmount}`;
             
-            localStorage.setItem('fk_pos_cart', JSON.stringify({
-                status: 'checkout_success'
-            }));
+            set(ref(database, 'fk_pos_cart'), { status: 'checkout_success' });
 
             document.getElementById('success-modal').style.display = 'flex';
-        }
+        };
 
-        function closeModal() {
+        window.closeModal = function() {
             document.getElementById('success-modal').style.display = 'none';
-            clearCart();
-        }
+            window.clearCart();
+        };
 
-        function updateUI() {
+        // 介面更新並即時推送至雲端
+        window.updateUI = function() {
             const list = document.getElementById('cart-list');
             list.innerHTML = '';
             
@@ -696,23 +701,19 @@
             document.getElementById('grand-total').innerText = `HKD ${total}`;
 
             if (currentRole !== 'admin') {
-                localStorage.setItem('fk_pos_cart', JSON.stringify({
+                set(ref(database, 'fk_pos_cart'), {
                     status: 'editing',
                     items: cart,
                     total: total,
                     count: itemsCount
-                }));
+                });
             }
-        }
+        };
 
         setInterval(() => {
             const now = new Date();
             document.getElementById('live-time').innerText = now.toLocaleString();
         }, 1000);
-
-        // 首次加載運行
-        loadProductsFromStorage();
-        localStorage.removeItem('fk_pos_cart');
     </script>
 </body>
 </html>
